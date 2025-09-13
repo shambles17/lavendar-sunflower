@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Feed Shero!</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* A simple custom style for the drop zone highlight */
+        .drag-over {
+            border-style: dashed !important;
+            border-color: #34d399 !important; /* A nice green color */
+            transform: scale(1.02);
+        }
+        /* Custom font */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+</head>
+<body class="bg-sky-100 flex flex-col items-center justify-center min-h-screen p-4 transition-colors duration-500">
+
+    <!-- Game Container -->
+    <div id="game-container" class="bg-white rounded-2xl shadow-xl p-6 md:p-10 w-full max-w-4xl text-center">
+
+        <!-- Header -->
+        <div id="header">
+            <h1 class="text-3xl md:text-5xl font-bold text-slate-800">Shero is Hungry!</h1>
+            <p id="instruction" class="text-slate-600 mt-2 text-lg">Drag the food to Shero's bowl to feed him.</p>
+        </div>
+
+        <!-- Main Game Area -->
+        <div class="mt-8 flex flex-col md:flex-row items-center justify-around gap-8 min-h-[400px]">
+            
+            <!-- Shero Image (The Drop Target) -->
+            <div id="shero-container" class="transition-transform duration-300">
+                <img src="Shero cry.jpg" id="shero-image" class="rounded-xl border-4 border-transparent shadow-md max-w-xs w-full md:max-w-sm" alt="A crying dog named Shero">
+            </div>
+
+            <!-- Dog Food Image (The Draggable Item) -->
+            <div id="food-container" class="cursor-grab transition-transform duration-200 active:cursor-grabbing active:scale-110">
+                <img src="Dog_Food-removebg-preview.png" id="dog-food" draggable="true" class="w-40 md:w-48" alt="A can of dog food">
+            </div>
+        </div>
+
+        <!-- Buttons Container -->
+        <div class="mt-6">
+            <button id="next-button" class="hidden bg-emerald-500 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg hover:bg-emerald-600 transition-all transform hover:scale-105">
+                Next
+            </button>
+            <button id="finish-button" class="hidden bg-blue-500 text-white font-bold py-3 px-8 rounded-lg text-xl shadow-lg hover:bg-blue-600 transition-all transform hover:scale-105">
+                Finish
+            </button>
+        </div>
+
+    </div>
+
+    <!-- Final GIF Sequence Container -->
+    <div id="final-sequence-container" class="hidden fixed inset-0 bg-black flex items-center justify-center z-50">
+        <img id="final-gif" src="" alt="Final Sequence" class="max-w-full max-h-full rounded-lg">
+    </div>
+
+
+    <script>
+        // --- Get references to our HTML elements ---
+        const gameContainer = document.getElementById('game-container');
+        const sheroContainer = document.getElementById('shero-container');
+        const sheroImage = document.getElementById('shero-image');
+        const dogFood = document.getElementById('dog-food');
+        const nextButton = document.getElementById('next-button');
+        const header = document.getElementById('header');
+        const instruction = document.getElementById('instruction');
+        const finishButton = document.getElementById('finish-button');
+        const finalSequenceContainer = document.getElementById('final-sequence-container');
+        const finalGif = document.getElementById('final-gif');
+
+
+        // --- Drag and Drop Logic ---
+
+        // 1. When the user starts dragging the dog food
+        dogFood.addEventListener('dragstart', (event) => {
+            console.log("Started dragging the food!");
+        });
+
+        // 2. When the food is being dragged over Shero's container
+        sheroContainer.addEventListener('dragover', (event) => {
+            event.preventDefault();
+            sheroImage.classList.add('drag-over');
+        });
+
+        // 3. When the dragged item leaves the drop target area
+        sheroContainer.addEventListener('dragleave', () => {
+            sheroImage.classList.remove('drag-over');
+        });
+
+        // 4. When the user drops the food on Shero's container
+        sheroContainer.addEventListener('drop', (event) => {
+            event.preventDefault(); 
+            console.log("Dropped food on Shero!");
+            
+            sheroImage.src = 'Sherooooooooooooooo.gif?t=' + new Date().getTime();
+            sheroImage.classList.remove('drag-over');
+            
+            dogFood.style.transition = 'opacity 0.5s';
+            dogFood.style.opacity = '0';
+            setTimeout(() => dogFood.classList.add('hidden'), 500);
+
+            instruction.textContent = "Great job! Shero is eating happily.";
+            nextButton.classList.remove('hidden');
+        });
+
+
+        // --- Button Click Logic ---
+
+        // 5. When the user clicks the "Next" button
+        nextButton.addEventListener('click', () => {
+            console.log("Next button clicked!");
+
+            sheroImage.src = 'Shero full (1).jpg';
+            
+            header.innerHTML = '<h1 class="text-3xl md:text-5xl font-bold text-slate-800">All Done!</h1>';
+            instruction.textContent = "Shero is full and taking a nap. Thanks for helping!";
+
+            nextButton.classList.add('hidden');
+            finishButton.classList.remove('hidden');
+        });
+
+        // 6. When the user clicks the "Finish" button
+        finishButton.addEventListener('click', () => {
+            console.log("Finish button clicked!");
+            
+            // Hide the main game and show the final sequence container
+            gameContainer.classList.add('hidden');
+            document.body.classList.remove('bg-sky-100');
+            document.body.classList.add('bg-black');
+            finalSequenceContainer.classList.remove('hidden');
+
+            // --- Start the GIF sequence ---
+
+            // 1. Play the first GIF
+            finalGif.src = 'T H A N K U.gif?t=' + new Date().getTime(); // Play "THANKU" gif
+            
+            // 2. After a delay, play the second GIF
+            // Estimated duration of the first GIF is ~2 seconds (2000 milliseconds)
+            setTimeout(() => {
+                finalGif.src = 'Untitled video - Made with Clipchamp.gif?t=' + new Date().getTime(); // Play second gif
+                
+                // 3. After the second GIF finishes, redirect
+                // Estimated duration of the second GIF is ~5 seconds (5000 milliseconds)
+                setTimeout(() => {
+                    window.location.href = 'birthday-surprise.html'; // Redirect to a new website
+                }, 5000); 
+
+            }, 2000);
+        });
+
+    </script>
+</body>
+</html>
+
